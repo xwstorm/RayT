@@ -2,6 +2,10 @@
 #include <stdlib.h> // Make : g++ -O3 -fopenmp smallpt.cpp -o smallpt
 #include <stdio.h>  //        Remove "-fopenmp" for g++ version < 4.2
 #include "object.h"
+#include "scene.h"
+#include "csphere.h"
+#include "unistd.h"
+//#define USE_XW
 struct Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
     double x, y, z;                  // position, also color (r,g,b)
     Vec(double x_=0, double y_=0, double z_=0){ x=x_; y=y_; z=z_; }
@@ -51,7 +55,8 @@ inline int toInt(double x){ return int(pow(clamp(x),1/2.2)*255+.5); }
 
 inline bool intersect(const Ray &r, double &t, int &id){
     double n=sizeof(spheres)/sizeof(Sphere), d, inf=t=1e20;
-    for(int i=int(n);i--;)
+//    for(int i=int(n);i--;)
+    for(int i=0; i<int(n);i++)
         if((d=spheres[i].intersect(r))&&d<t){
             t=d;id=i;
         }
@@ -109,6 +114,48 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
                           (erand48(Xi)<P ? radiance(reflRay,depth,Xi)*RP:radiance(Ray(x,tdir),depth,Xi)*TP) :
                                            radiance(reflRay,depth,Xi)*Re+radiance(Ray(x,tdir),depth,Xi)*Tr);
 }
+
+Scene gScene;
+void initScene() {
+    Object* obj = nullptr;
+    obj = new CSphere(1e5, vec3d( 1e5+1,40.8,81.6), vec3d(),           vec3d(.75,.25,.25),   DIFF);
+    obj->setEntityName("1");
+    gScene.addObject(obj);
+    obj = new CSphere(1e5, vec3d(-1e5+99,40.8,81.6),vec3d(),           vec3d(.25,.25,.75),   DIFF);
+    obj->setEntityName("2");
+    gScene.addObject(obj);
+    obj = new CSphere(1e5, vec3d(50,40.8, 1e5),     vec3d(),           vec3d(.75,.75,.75),   DIFF);
+    obj->setEntityName("3");
+    gScene.addObject(obj);
+    obj = new CSphere(1e5, vec3d(50,40.8,-1e5+170), vec3d(),           vec3d(),              DIFF);
+    obj->setEntityName("4");
+    gScene.addObject(obj);
+    obj = new CSphere(1e5, vec3d(50, 1e5, 81.6),    vec3d(),           vec3d(.75,.75,.75),   DIFF);
+    obj->setEntityName("5");
+    gScene.addObject(obj);
+    obj = new CSphere(1e5, vec3d(50,-1e5+81.6,81.6),vec3d(),           vec3d(.75,.75,.75),   DIFF);
+    obj->setEntityName("6");
+    gScene.addObject(obj);
+    obj = new CSphere(16.5,vec3d(27,16.5,47),       vec3d(),           vec3d(1,1,1)*.999,    SPEC);
+    obj->setEntityName("7");
+    gScene.addObject(obj);
+    obj = new CSphere(16.5,vec3d(73,16.5,78),       vec3d(),           vec3d(1,1,1)*.999,    REFR);
+    obj->setEntityName("8");
+    gScene.addObject(obj);
+    obj = new CSphere(600, vec3d(50,681.6-.27,81.6),vec3d(12,12,12),   vec3d(),              DIFF);
+    obj->setEntityName("9");
+    gScene.addObject(obj);
+    
+//    gScene.addObject(  );//Left
+//    gScene.addObject(  );//Rght
+//    gScene.addObject(  );//Back
+//    gScene.addObject(  );//Frnt
+//    gScene.addObject(  );//Botm
+//    gScene.addObject(  );//Top
+//    gScene.addObject(  );//Mirr
+//    gScene.addObject(  );//Glas
+//    gScene.addObject(  );//Lite
+}
 void trace(int sample_count){
 //int main(int argc, char *argv[]){
     int w=1024, h=768, samps = sample_count/4; // # samples
@@ -119,6 +166,9 @@ void trace(int sample_count){
     Vec cy=(cx%cam.d).norm()*rate;// cy的最大值就是rate
     Vec *c=new Vec[w*h];
     Vec r;
+    vec3d tmpRes;
+    initScene();
+    char * dir = getcwd(NULL, 0);
 #pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
     for (int y=0; y<h; y++){                       // Loop over image rows
         fprintf(stderr,"\rRendering (%d spp) %5.2f%% cx:%f %f %f",samps*4,100.*y/(h-1), cx.x, cx.y, cx.z);
@@ -138,12 +188,29 @@ void trace(int sample_count){
                         // 近裁剪面的x是从-0.5到0.5吗？
                         // 近裁剪面到相机的距离是1
                         Vec d = cx*( ( (sx+.5 + dx)/2 + x)/w - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/h - .5) + cam.d;
+                        d.norm();
+                        
+#ifdef USE_XW
+                        {
+                            vec3d ori(cam.o.x, cam.o.y, cam.o.z);
+                            vec3d dir(d.x, d.y, d.z);
+                            
+                            TRay ray(ori, dir);
+                            tmpRes = gScene.radiance(ray, 0, Xi);
+                        }
+#else
+
                         // 下面的光线是什么意思？相机的位置不应该改变呀～
                         r = r + radiance(Ray(cam.o,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
                         // 下面的140相当于近裁剪面，去掉貌似没什么影响
 //                        r = r + radiance(Ray(cam.o+d*140,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
+#endif
                     } // Camera rays are pushed ^^^^^ forward to start in interior
+#ifdef USE_XW
+                    c[i] = c[i] + Vec(clamp(tmpRes.x),clamp(tmpRes.y),clamp(tmpRes.z))*.25;//这儿除以4
+#else
                     c[i] = c[i] + Vec(clamp(r.x),clamp(r.y),clamp(r.z))*.25;//这儿除以4
+#endif
                 }
         }
     }
@@ -152,6 +219,5 @@ void trace(int sample_count){
     for (int i=0; i<w*h; i++)
         fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
     fclose(f);
-    int t = 0;
     return;
 }

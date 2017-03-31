@@ -15,15 +15,15 @@
 class CSphere : public Object {
 public:
     CSphere();
-    CSphere(double radius, glm::vec3& pos, glm::vec3& emission, glm::vec3& color, Refl_t refl);
+    CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl);
     
-    glm::vec3 radiance(const Ray& ray, int depth, );
+    bool intersect(const TRay& ray, double& t) override;
+    vec3d radiance(TRay& ray, double t, int depth, unsigned short* Xi) override;
 protected:
     double mRadius;
     Refl_t mRefl;
-    glm::vec3 mPos;
-    glm::vec3 mEmission;
-    glm::vec3 mColor;
-    
+    vec3d mPos;
+    vec3d mEmission;
+    vec3d mColor;
 };
 #endif /* CSphere_h */

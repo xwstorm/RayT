@@ -11,6 +11,7 @@
 		5D266C701E6855D0006E5136 /* cbject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D266C6E1E6855D0006E5136 /* cbject.cpp */; };
 		5D266C731E69109B006E5136 /* csphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D266C711E69109A006E5136 /* csphere.cpp */; };
 		5D266C751E694D84006E5136 /* glm in Resources */ = {isa = PBXBuildFile; fileRef = 5D266C741E694D84006E5136 /* glm */; };
+		5D266C781E6969F7006E5136 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D266C761E6969F7006E5136 /* scene.cpp */; };
 		5DD07AEF1E5890D800BF4A4A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DD07AEE1E5890D800BF4A4A /* AppDelegate.m */; };
 		5DD07AF21E5890D800BF4A4A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DD07AF11E5890D800BF4A4A /* main.m */; };
 		5DD07AF51E5890D800BF4A4A /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5DD07AF41E5890D800BF4A4A /* ViewController.mm */; };
@@ -27,6 +28,8 @@
 		5D266C711E69109A006E5136 /* csphere.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csphere.cpp; sourceTree = "<group>"; };
 		5D266C721E69109B006E5136 /* csphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = csphere.h; sourceTree = "<group>"; };
 		5D266C741E694D84006E5136 /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; path = glm; sourceTree = "<group>"; };
+		5D266C761E6969F7006E5136 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
+		5D266C771E6969F7006E5136 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
 		5DD07AEA1E5890D800BF4A4A /* RayT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RayT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DD07AED1E5890D800BF4A4A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5DD07AEE1E5890D800BF4A4A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -74,16 +77,18 @@
 				5DD07AEE1E5890D800BF4A4A /* AppDelegate.m */,
 				5DD07AF31E5890D800BF4A4A /* ViewController.h */,
 				5DD07AF41E5890D800BF4A4A /* ViewController.mm */,
-				5DD07AF61E5890D800BF4A4A /* Assets.xcassets */,
-				5DD07AF81E5890D800BF4A4A /* Main.storyboard */,
-				5DD07AFB1E5890D800BF4A4A /* Info.plist */,
-				5DD07AF01E5890D800BF4A4A /* Supporting Files */,
 				5D266C6B1E684611006E5136 /* cimage.cpp */,
 				5D266C6C1E684611006E5136 /* cimage.h */,
 				5D266C6E1E6855D0006E5136 /* cbject.cpp */,
 				5D266C6F1E6855D0006E5136 /* object.h */,
 				5D266C711E69109A006E5136 /* csphere.cpp */,
 				5D266C721E69109B006E5136 /* csphere.h */,
+				5D266C761E6969F7006E5136 /* scene.cpp */,
+				5D266C771E6969F7006E5136 /* scene.h */,
+				5DD07AF81E5890D800BF4A4A /* Main.storyboard */,
+				5DD07AFB1E5890D800BF4A4A /* Info.plist */,
+				5DD07AF01E5890D800BF4A4A /* Supporting Files */,
+				5DD07AF61E5890D800BF4A4A /* Assets.xcassets */,
 				5D266C741E694D84006E5136 /* glm */,
 			);
 			path = RayT;
@@ -174,6 +179,7 @@
 				5DD07AF21E5890D800BF4A4A /* main.m in Sources */,
 				5D266C731E69109B006E5136 /* csphere.cpp in Sources */,
 				5D266C701E6855D0006E5136 /* cbject.cpp in Sources */,
+				5D266C781E6969F7006E5136 /* scene.cpp in Sources */,
 				5DD07AEF1E5890D800BF4A4A /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

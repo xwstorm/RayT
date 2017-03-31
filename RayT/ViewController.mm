@@ -14,7 +14,7 @@ void trace(int sample_count);
     [super viewDidLoad];
 
     // Do any additional setup after loading the view.
-    trace(10);
+    trace(30);
 }
 
 
