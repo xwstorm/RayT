@@ -4,7 +4,21 @@
 #include "object.h"
 #include "scene.h"
 #include "csphere.h"
+#include <math.h>
+#ifndef _WINDOWS
 #include "unistd.h"
+#endif
+#ifndef M_PI
+#define M_PI       3.14159265358979323846
+#endif
+
+double getRand(unsigned short * in) {
+#ifdef _WINDOWS
+	return 
+#else
+	return erand48(Xi);
+#endif
+}
 //#define USE_XW
 struct Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
     double x, y, z;                  // position, also color (r,g,b)
@@ -168,7 +182,7 @@ void trace(int sample_count){
     Vec r;
     vec3d tmpRes;
     initScene();
-    char * dir = getcwd(NULL, 0);
+    //char * dir = getcwd(NULL, 0);
 #pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
     for (int y=0; y<h; y++){                       // Loop over image rows
         fprintf(stderr,"\rRendering (%d spp) %5.2f%% cx:%f %f %f",samps*4,100.*y/(h-1), cx.x, cx.y, cx.z);
