@@ -16,7 +16,7 @@ double getRand(unsigned short * in) {
 #ifdef _WINDOWS
 	return 
 #else
-	return erand48(Xi);
+	return erand48(in);
 #endif
 }
 //#define USE_XW
@@ -78,6 +78,9 @@ inline bool intersect(const Ray &r, double &t, int &id){
 }
 
 Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store the result of erand48 *******
+    if (depth > 1) {
+        return Vec();
+    }
     double t;                               // distance to intersection
     int id=0;                               // id of intersected object
     if (!intersect(r, t, id))
@@ -94,6 +97,10 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
             f=f*(1/p);
         else
             return obj.e; //R.R.
+    }
+    if (depth == 1 && id == 7) {
+        depth++;
+        depth--;
     }
     if (obj.refl == DIFF){                  // Ideal DIFFUSE reflection
         double r1=2*M_PI*erand48(Xi);
@@ -141,9 +148,9 @@ void initScene() {
     obj = new CSphere(1e5, vec3d(50,40.8, 1e5),     vec3d(),           vec3d(.75,.75,.75),   DIFF);
     obj->setEntityName("3");
     gScene.addObject(obj);
-    obj = new CSphere(1e5, vec3d(50,40.8,-1e5+170), vec3d(),           vec3d(),              DIFF);
-    obj->setEntityName("4");
-    gScene.addObject(obj);
+//    obj = new CSphere(1e5, vec3d(50,40.8,-1e5+170), vec3d(),           vec3d(),              DIFF);
+//    obj->setEntityName("4");
+//    gScene.addObject(obj);
     obj = new CSphere(1e5, vec3d(50, 1e5, 81.6),    vec3d(),           vec3d(.75,.75,.75),   DIFF);
     obj->setEntityName("5");
     gScene.addObject(obj);
@@ -180,7 +187,6 @@ void trace(int sample_count){
     Vec cy=(cx%cam.d).norm()*rate;// cy的最大值就是rate
     Vec *c=new Vec[w*h];
     Vec r;
-    vec3d tmpRes;
     initScene();
     //char * dir = getcwd(NULL, 0);
 #pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
@@ -190,8 +196,10 @@ void trace(int sample_count){
         {
             // 每个点在2x2的大小上计算
             for (int sy=0, i=(h-y-1)*w+x; sy<2; sy++)     // 2x2 subpixel rows
+            {
                 for (int sx=0; sx<2; sx++, r=Vec()){        // 2x2 subpixel cols
                     // samps是输入的参数再除以4
+                    vec3d tmpRes;
                     for (int s=0; s<samps; s++){
                         // dx, dy是什么，为什么要与随机数搞到一块儿？
                         double r1=2*erand48(Xi);
@@ -210,28 +218,52 @@ void trace(int sample_count){
                             vec3d dir(d.x, d.y, d.z);
                             
                             TRay ray(ori, dir);
-                            tmpRes = gScene.radiance(ray, 0, Xi);
+                            vec3d ret = gScene.radiance(ray, 0, Xi) * (1.0/samps);
+                            tmpRes += ret;
                         }
 #else
 
                         // 下面的光线是什么意思？相机的位置不应该改变呀～
-                        r = r + radiance(Ray(cam.o,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
+                        r = r + radiance(Ray(cam.o,d.norm()),0,Xi) * (1.0/samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
                         // 下面的140相当于近裁剪面，去掉貌似没什么影响
 //                        r = r + radiance(Ray(cam.o+d*140,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
 #endif
                     } // Camera rays are pushed ^^^^^ forward to start in interior
 #ifdef USE_XW
-                    c[i] = c[i] + Vec(clamp(tmpRes.x),clamp(tmpRes.y),clamp(tmpRes.z))*.25;//这儿除以4
+                    Vec pointValue = Vec(clamp(tmpRes.x),clamp(tmpRes.y),clamp(tmpRes.z))*.25;//这儿除以4
 #else
-                    c[i] = c[i] + Vec(clamp(r.x),clamp(r.y),clamp(r.z))*.25;//这儿除以4
+                    Vec pointValue = Vec(clamp(r.x),clamp(r.y),clamp(r.z))*.25;//这儿除以4
 #endif
+                    pointValue = pointValue + c[i];
+                    c[i] = pointValue;
                 }
+            }
+//            fprintf(stderr, "%f %f %f", c[i].x, c[i].y, c[i].z);
         }
     }
     FILE *f = fopen("/Users/xiewei/Desktop/image.ppm", "w");         // Write image to PPM file.
     fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
-    for (int i=0; i<w*h; i++)
-        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
+    int count = 0;
+    int count1 = 0;
+    for (int i=0; i<w*h; i++) {
+        double val0 = fabs(c[i].x - 0.0);
+        double val1 = fabs(c[i].x - 1.0);
+        double val2 = fabs(c[i].x - 0.25);
+        if (val2 < 0.1) {
+            c[i].x = 1;
+            c[i].y = 1;
+            c[i].z = 1;
+            count1++;
+        }
+        if (val0 > 0.1 && val1 > 0.1) {
+            count++;
+        }
+        int intx = toInt(c[i].x);
+        int inty = toInt(c[i].y);
+        int intz = toInt(c[i].z);
+//        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
+        fprintf(f,"%d %d %d ", intx, inty, intz);
+    }
     fclose(f);
     return;
 }

@@ -28,18 +28,22 @@ vec3d Scene::radiance(TRay& ray, int depth, unsigned short *Xi) {
     const float inf = 1e20;
     double minDis = 1e200;
     Object* hitObj = nullptr;
-    for (auto it=mObjs.begin(); it != mObjs.end(); ++it) {
+    int hitIndex = -1;
+    int i=0;
+    for (auto it=mObjs.begin(); it != mObjs.end(); ++it, ++i) {
         Object* obj = *it;
         double t = 0;
         if (obj->intersect(ray, t)) {
             if (t < minDis) {
                 minDis = t;
                 hitObj = obj;
+                hitIndex = i;
+                hitIndex = i;
             }
         }
     }
     if (minDis<inf && hitObj != nullptr) {
-        return hitObj->radiance(ray, minDis, depth++, Xi);
+        return hitObj->radiance(ray, minDis, ++depth, Xi);
     }
     return vec3d();
 }
