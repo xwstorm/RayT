@@ -14,6 +14,7 @@
 #include "glm/glm.hpp"
 class CSphere : public Object {
 public:
+    static int hitCount;
     CSphere();
     CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl);
     

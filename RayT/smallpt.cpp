@@ -19,7 +19,7 @@ double getRand(unsigned short * in) {
 	return erand48(in);
 #endif
 }
-//#define USE_XW
+#define USE_XW
 struct Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
     double x, y, z;                  // position, also color (r,g,b)
     Vec(double x_=0, double y_=0, double z_=0){ x=x_; y=y_; z=z_; }
@@ -76,7 +76,7 @@ inline bool intersect(const Ray &r, double &t, int &id){
         }
     return t<inf;
 }
-
+int hitCounttt = 0;
 Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store the result of erand48 *******
     if (depth > 1) {
         return Vec();
@@ -101,7 +101,9 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
     if (depth == 1 && id == 7) {
         depth++;
         depth--;
+        hitCounttt++;
     }
+//    if (true){                  // Ideal DIFFUSE reflection
     if (obj.refl == DIFF){                  // Ideal DIFFUSE reflection
         double r1=2*M_PI*erand48(Xi);
         double r2=erand48(Xi);
@@ -216,6 +218,7 @@ void trace(int sample_count){
                         {
                             vec3d ori(cam.o.x, cam.o.y, cam.o.z);
                             vec3d dir(d.x, d.y, d.z);
+                            dir = glm::normalize(dir);
                             
                             TRay ray(ori, dir);
                             vec3d ret = gScene.radiance(ray, 0, Xi) * (1.0/samps);
@@ -265,5 +268,6 @@ void trace(int sample_count){
         fprintf(f,"%d %d %d ", intx, inty, intz);
     }
     fclose(f);
+    int tt = CSphere::hitCount;
     return;
 }

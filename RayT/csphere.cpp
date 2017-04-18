@@ -8,7 +8,7 @@
 
 #include "csphere.h"
 #include "scene.h"
-
+int CSphere::hitCount = 0;
 CSphere::CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl)
 : mRadius(radius)
 , mPos(pos)
@@ -36,7 +36,7 @@ bool CSphere::intersect(const TRay& ray, double& t) {
         return true;
     }
     t = 0.0;
-    return true;
+    return false;
 }
 
 vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
@@ -49,7 +49,7 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
     // 获取交点处的颜色
     vec3d color = mColor;
     double maxChannel = fmax(fmax(color.x, color.y), color.z);
-    if (depth > 5) {
+    if (++depth > 5) {
         if (erand48(Xi) < maxChannel) {
             color = color * 1.0 / maxChannel;
         } else {
@@ -59,6 +59,7 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
     if (depth == 1 && mEntityName == "9") {
         depth++;
         depth--;
+        hitCount++;
     }
     
     switch (mRefl) {
@@ -68,7 +69,8 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
             double r2 = erand48(Xi);
             double r2s= glm::sqrt(r2);
             vec3d w = normal;
-            vec3d u = fabs(w.x) > 0.1 ? vec3d(0,1,0) : glm::cross(vec3d(1, 0, 0), w);
+            vec3d u = glm::cross( (fabs(w.x) > 0.1 ? vec3d(0,1,0) : vec3d(1, 0, 0) ), w);
+//            vec3d u = fabs(w.x) > 0.1 ? vec3d(0,1,0) : glm::cross(vec3d(1, 0, 0), w);
             u = glm::normalize(u);
             vec3d v = glm::cross(w, u);
             vec3d newDir = glm::normalize(u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2));

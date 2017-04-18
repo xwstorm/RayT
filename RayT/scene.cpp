@@ -43,7 +43,7 @@ vec3d Scene::radiance(TRay& ray, int depth, unsigned short *Xi) {
         }
     }
     if (minDis<inf && hitObj != nullptr) {
-        return hitObj->radiance(ray, minDis, ++depth, Xi);
+        return hitObj->radiance(ray, minDis, depth, Xi);
     }
     return vec3d();
 }
