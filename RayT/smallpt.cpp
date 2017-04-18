@@ -76,7 +76,6 @@ inline bool intersect(const Ray &r, double &t, int &id){
         }
     return t<inf;
 }
-int hitCounttt = 0;
 Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store the result of erand48 *******
     if (depth > 1) {
         return Vec();
@@ -98,12 +97,6 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
         else
             return obj.e; //R.R.
     }
-    if (depth == 1 && id == 7) {
-        depth++;
-        depth--;
-        hitCounttt++;
-    }
-//    if (true){                  // Ideal DIFFUSE reflection
     if (obj.refl == DIFF){                  // Ideal DIFFUSE reflection
         double r1=2*M_PI*erand48(Xi);
         double r2=erand48(Xi);
@@ -246,28 +239,9 @@ void trace(int sample_count){
     }
     FILE *f = fopen("/Users/xiewei/Desktop/image.ppm", "w");         // Write image to PPM file.
     fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
-    int count = 0;
-    int count1 = 0;
     for (int i=0; i<w*h; i++) {
-        double val0 = fabs(c[i].x - 0.0);
-        double val1 = fabs(c[i].x - 1.0);
-        double val2 = fabs(c[i].x - 0.25);
-        if (val2 < 0.1) {
-            c[i].x = 1;
-            c[i].y = 1;
-            c[i].z = 1;
-            count1++;
-        }
-        if (val0 > 0.1 && val1 > 0.1) {
-            count++;
-        }
-        int intx = toInt(c[i].x);
-        int inty = toInt(c[i].y);
-        int intz = toInt(c[i].z);
-//        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
-        fprintf(f,"%d %d %d ", intx, inty, intz);
+        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
     }
     fclose(f);
-    int tt = CSphere::hitCount;
     return;
 }
