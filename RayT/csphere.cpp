@@ -8,6 +8,7 @@
 
 #include "csphere.h"
 #include "scene.h"
+#include <math.h>
 CSphere::CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl)
 : Object(pos, emission, color, refl)
 , mRadius(radius) {

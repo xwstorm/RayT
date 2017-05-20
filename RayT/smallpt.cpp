@@ -6,21 +6,20 @@
 #include "csphere.h"
 #include "rectangle_obj.h"
 #include <math.h>
-#ifndef _WINDOWS
+#ifdef _WINDOWS
+#include "erand.h"
+#define xprintf(format, ...) \
+        print_log(format, __VA_ARGS__)
+#else
 #include "unistd.h"
+#define xprintf(format, ...) \
+        fprintf(format, __VA_ARGS__)
 #endif
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
 
-double getRand(unsigned short * in) {
-#ifdef _WINDOWS
-	return 
-#else
-	return erand48(in);
-#endif
-}
-#define USE_XW
+//#define USE_XW
 struct Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
     double x, y, z;                  // position, also color (r,g,b)
     Vec(double x_=0, double y_=0, double z_=0){ x=x_; y=y_; z=z_; }
@@ -77,10 +76,7 @@ inline bool intersect(const Ray &r, double &t, int &id){
         }
     return t<inf;
 }
-Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store the result of erand48 *******
-//    if (depth > 1) {
-//        return Vec();
-//    }
+Vec radiance(const Ray &r, int depth, unsigned short *seed){// xi used to store the result of erand48 *******
     double t;                               // distance to intersection
     int id=0;                               // id of intersected object
     if (!intersect(r, t, id))
@@ -92,30 +88,30 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
     Vec f=obj.c;// 球的颜色
     double p = f.x>f.y && f.x>f.z ? f.x : f.y>f.z ? f.y : f.z; // max refl，这儿为什么要选值最大的颜色呀？
     if (++depth>5) {
-//        return obj.e;// 改了这一行，好像也没啥不一样呀～
-        if (erand48(Xi)<p)
+        return obj.e;// 改了这一行，好像也没啥不一样呀～
+        if (erand48(seed)<p)
             f=f*(1/p);
         else
             return obj.e; //R.R.
     }
     if (obj.refl == DIFF){                  // Ideal DIFFUSE reflection
-        double r1=2*M_PI*erand48(Xi);
-        double r2=erand48(Xi);
+        double r1=2*M_PI*erand48(seed);
+        double r2=erand48(seed);
         double r2s=sqrt(r2);
         Vec w=nl;// 反射时的法线
         Vec u=((fabs(w.x)>.1?Vec(0,1):Vec(1))%w).norm();
         Vec v=w%u;
         Vec d = (u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2)).norm();// 这儿的d为什么要这么计算？应该是一个随机的方向，如果这个方向对视点是不可见的呢？
-        return obj.e + f.mult(radiance(Ray(x,d),depth,Xi));
+        return obj.e + f.mult(radiance(Ray(x,d),depth,seed));
     } else if (obj.refl == SPEC)            // Ideal SPECULAR reflection
-        return obj.e + f.mult(radiance(Ray(x,r.d-n*2*n.dot(r.d)),depth,Xi));// 球面的反射方向
+        return obj.e + f.mult(radiance(Ray(x,r.d-n*2*n.dot(r.d)),depth,seed));// 球面的反射方向
     Ray reflRay(x, r.d-n*2*n.dot(r.d));     // Ideal dielectric REFRACTION
     bool into = n.dot(nl)>0;                // Ray from outside going in?
     double nc=1, nt=1.5;
     double nnt=into?nc/nt:nt/nc;            // 这儿是折射率吗？
     double ddn=r.d.dot(nl), cos2t;
     if ((cos2t=1-nnt*nnt*(1-ddn*ddn))<0)    // Total internal reflection 这儿是计算内部的反射,全反射
-        return obj.e + f.mult(radiance(reflRay,depth,Xi));
+        return obj.e + f.mult(radiance(reflRay,depth,seed));
     Vec tdir = (r.d*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm(); // 这个应该是折射方向
     double a=nt-nc; // 0.5
     double b=nt+nc; // 2.5
@@ -128,8 +124,8 @@ Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store th
     double TP=Tr/(1-P);
     // Russian roulette
     return obj.e + f.mult(depth>2 ?
-                          (erand48(Xi)<P ? radiance(reflRay,depth,Xi)*RP:radiance(Ray(x,tdir),depth,Xi)*TP) :
-                                           radiance(reflRay,depth,Xi)*Re+radiance(Ray(x,tdir),depth,Xi)*Tr);
+                          (erand48(seed)<P ? radiance(reflRay,depth,seed)*RP:radiance(Ray(x,tdir),depth,seed)*TP) :
+                                           radiance(reflRay,depth,seed)*Re+radiance(Ray(x,tdir),depth,seed)*Tr);
 }
 
 Scene gScene;
@@ -186,19 +182,8 @@ void initScene() {
                         DIFF);
     obj->setEntityName("11");
     gScene.addObject(obj);
-    
-//    gScene.addObject(  );//Left
-//    gScene.addObject(  );//Rght
-//    gScene.addObject(  );//Back
-//    gScene.addObject(  );//Frnt
-//    gScene.addObject(  );//Botm
-//    gScene.addObject(  );//Top
-//    gScene.addObject(  );//Mirr
-//    gScene.addObject(  );//Glas
-//    gScene.addObject(  );//Lite
 }
-void trace(int sample_count){
-//int main(int argc, char *argv[]){
+void trace(int sample_count, const char* fileDir){
     int w=1024, h=768, samps = sample_count/4; // # samples
     Ray cam(Vec(50,52,295.6), Vec(0, 0,-1).norm()); // cam pos, dir -0.042612
     const float rate = 0.5153f; // 0.5153f; // 这个好像是FOV，是y方向上的角度
@@ -211,8 +196,8 @@ void trace(int sample_count){
     //char * dir = getcwd(NULL, 0);
 #pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
     for (int y=0; y<h; y++){                       // Loop over image rows
-        fprintf(stderr,"\rRendering (%d spp) %5.2f%% cx:%f %f %f",samps*4,100.*y/(h-1), cx.x, cx.y, cx.z);
-        for (unsigned short x=0, Xi[3]={0,0,static_cast<unsigned short>(y*y*y)}; x<w; x++)   // Loop cols
+		xprintf("\rRendering (%d spp) %5.2f%%", samps * 4, 100.*y / (h - 1) );
+        for (unsigned short x=0, seed[3]={0,0,static_cast<unsigned short>(y*y*y)}; x<w; x++)   // Loop cols
         {
             // 每个点在2x2的大小上计算
             for (int sy=0, i=(h-y-1)*w+x; sy<2; sy++)     // 2x2 subpixel rows
@@ -222,9 +207,9 @@ void trace(int sample_count){
                     vec3d tmpRes;
                     for (int s=0; s<samps; s++){
                         // dx, dy是什么，为什么要与随机数搞到一块儿？
-                        double r1=2*erand48(Xi);
+                        double r1=2*erand48(seed);
                         double dx=r1<1 ? sqrt(r1)-1: 1-sqrt(2-r1);
-                        double r2=2*erand48(Xi);
+                        double r2=2*erand48(seed);
                         double dy=r2<1 ? sqrt(r2)-1: 1-sqrt(2-r2);
                         // 下面是计算光线的方向
                         // 近裁剪面的x是从-0.5到0.5吗？
@@ -239,13 +224,13 @@ void trace(int sample_count){
                             dir = glm::normalize(dir);
                             
                             TRay ray(ori, dir);
-                            vec3d ret = gScene.radiance(ray, 0, Xi) * (1.0/samps);
+                            vec3d ret = gScene.radiance(ray, 0, seed) * (1.0/samps);
                             tmpRes += ret;
                         }
 #else
 
                         // 下面的光线是什么意思？相机的位置不应该改变呀～
-                        r = r + radiance(Ray(cam.o,d.norm()),0,Xi) * (1.0/samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
+                        r = r + radiance(Ray(cam.o,d.norm()),0,seed) * (1.0/samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
                         // 下面的140相当于近裁剪面，去掉貌似没什么影响
 //                        r = r + radiance(Ray(cam.o+d*140,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
 #endif
@@ -262,7 +247,9 @@ void trace(int sample_count){
 //            fprintf(stderr, "%f %f %f", c[i].x, c[i].y, c[i].z);
         }
     }
-    FILE *f = fopen("/Users/xiewei/Desktop/image.ppm", "w");         // Write image to PPM file.
+	std::string filePath(fileDir);
+	filePath += "/image.ppm";
+    FILE *f = fopen(filePath.c_str(), "w");         // Write image to PPM file.
     fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
     for (int i=0; i<w*h; i++) {
         fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));

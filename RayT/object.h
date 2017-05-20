@@ -9,6 +9,15 @@
 #ifndef Object_h
 #define Object_h
 
+#ifndef M_PI
+#define M_PI       3.14159265358979323846  
+#endif // !1
+
+
+#ifdef _WINDOWS
+#include "erand.h"
+#endif
+
 #include <stdio.h>
 #include "glm/glm.hpp"
 #include <string>

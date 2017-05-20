@@ -95,10 +95,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../RayT/windows/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,7 +145,9 @@
     <ClInclude Include="..\RayT\cimage.h" />
     <ClInclude Include="..\RayT\CSphere.h" />
     <ClInclude Include="..\RayT\object.h" />
+    <ClInclude Include="..\RayT\rectangle_obj.h" />
     <ClInclude Include="..\RayT\scene.h" />
+    <ClInclude Include="..\RayT\windows\erand.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -154,8 +157,10 @@
     <ClCompile Include="..\RayT\cbject.cpp" />
     <ClCompile Include="..\RayT\cimage.cpp" />
     <ClCompile Include="..\RayT\csphere.cpp" />
+    <ClCompile Include="..\RayT\rectangle_obj.cpp" />
     <ClCompile Include="..\RayT\scene.cpp" />
     <ClCompile Include="..\RayT\smallpt.cpp" />
+    <ClCompile Include="..\RayT\windows\erand.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
