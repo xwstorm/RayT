@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "242"
             endingLineNumber = "242"
-            landmarkName = "trace(int sample_count)"
+            landmarkName = "trace(int sample_count, const char* fileDir)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

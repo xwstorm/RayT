@@ -13,7 +13,7 @@
 #else
 #include "unistd.h"
 #define xprintf(format, ...) \
-        fprintf(format, __VA_ARGS__)
+        fprintf(stderr, format, __VA_ARGS__)
 #endif
 #ifndef M_PI
 #define M_PI       3.14159265358979323846

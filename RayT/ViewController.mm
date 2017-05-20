@@ -9,12 +9,12 @@
 #import "ViewController.h"
 
 @implementation ViewController
-void trace(int sample_count);
+void trace(int sample_count, const char* fileDir);
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     // Do any additional setup after loading the view.
-    trace(20);
+    trace(2, "/Users/xiewei/Desktop");
 }
 
 
