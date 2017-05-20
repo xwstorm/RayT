@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include "glm/glm.hpp"
 #include <string>
+
+#define MIN_F 1.0e-3
+
 typedef glm::dvec3 vec3d;
 enum Refl_t { DIFF, SPEC, REFR };  // material types, used in radiance()
 const double eps = 1.0e-4;
@@ -29,6 +32,7 @@ class CImage;
 class Object {
 public:
     Object();
+    Object(const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl);
     // 求交函数
     virtual bool intersect(const TRay& ray, double& t);
     virtual vec3d radiance(TRay& ray, double t, int depth, unsigned short* Xi);
@@ -39,6 +43,11 @@ protected:
     CImage* mImage;
     Scene*  mScene;
     std::string mEntityName;
+    
+    Refl_t mRefl;
+    vec3d mPos;
+    vec3d mEmission;
+    vec3d mColor;
 };
 
 #endif /* Object_h */

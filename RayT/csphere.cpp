@@ -9,12 +9,9 @@
 #include "csphere.h"
 #include "scene.h"
 CSphere::CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl)
-: mRadius(radius)
-, mPos(pos)
-, mEmission(emission)
-, mColor(color)
-, mRefl(refl)
-{
+: Object(pos, emission, color, refl)
+, mRadius(radius) {
+    
 }
 
 bool CSphere::intersect(const TRay& ray, double& t) {
@@ -45,15 +42,12 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
     vec3d color = mColor;
     double maxChannel = fmax(fmax(color.x, color.y), color.z);
     if (++depth > 5) {
-        if (erand48(Xi) < maxChannel) {
-            color = color * 1.0 / maxChannel;
-        } else {
+//        if (erand48(Xi) < maxChannel) {
+//            color = color * 1.0 / maxChannel;
+//        } else {
+//            return mEmission;
+//        }
             return mEmission;
-        }
-    }
-    if (depth == 1 && mEntityName == "9") {
-        depth++;
-        depth--;
     }
     
     switch (mRefl) {

@@ -21,9 +21,5 @@ public:
     vec3d radiance(TRay& ray, double t, int depth, unsigned short* Xi) override;
 protected:
     double mRadius;
-    Refl_t mRefl;
-    vec3d mPos;
-    vec3d mEmission;
-    vec3d mColor;
 };
 #endif /* CSphere_h */

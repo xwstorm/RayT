@@ -4,6 +4,7 @@
 #include "object.h"
 #include "scene.h"
 #include "csphere.h"
+#include "rectangle_obj.h"
 #include <math.h>
 #ifndef _WINDOWS
 #include "unistd.h"
@@ -77,9 +78,9 @@ inline bool intersect(const Ray &r, double &t, int &id){
     return t<inf;
 }
 Vec radiance(const Ray &r, int depth, unsigned short *Xi){// xi used to store the result of erand48 *******
-    if (depth > 1) {
-        return Vec();
-    }
+//    if (depth > 1) {
+//        return Vec();
+//    }
     double t;                               // distance to intersection
     int id=0;                               // id of intersected object
     if (!intersect(r, t, id))
@@ -160,6 +161,30 @@ void initScene() {
     gScene.addObject(obj);
     obj = new CSphere(600, vec3d(50,681.6-.27,81.6),vec3d(12,12,12),   vec3d(),              DIFF);
     obj->setEntityName("9");
+    gScene.addObject(obj);
+    
+    obj = new Rectangle(vec3d(27,16.5,47),
+                        vec3d(1.0, 0.0, 0.0),
+                        vec3d(0.0, 1.0, 0.0),
+                        vec3d(0.0, 0.0, 1.0),
+                        500,
+                        500,
+                        vec3d(),
+                        vec3d(0.75, 0.25, 0.25),
+                        DIFF);
+    obj->setEntityName("10");
+//    gScene.addObject(obj);
+    
+    obj = new Rectangle(vec3d(27,16.5,47),
+                        vec3d(0.0, 0.0, -1.0),
+                        vec3d(0.0, 1.0, 0.0),
+                        vec3d(1.0, 0.0, 0.0),
+                        500,
+                        500,
+                        vec3d(),
+                        vec3d(0.75, 0.25, 0.25),
+                        DIFF);
+    obj->setEntityName("11");
     gScene.addObject(obj);
     
 //    gScene.addObject(  );//Left
