@@ -54,6 +54,9 @@
     <ClInclude Include="..\RayT\rectangle_obj.h">
       <Filter>Source Files\raytrace</Filter>
     </ClInclude>
+    <ClInclude Include="..\RayT\config.h">
+      <Filter>Source Files\raytrace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

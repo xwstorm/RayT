@@ -28,12 +28,12 @@ struct Vec {        // Usage: time ./smallpt 5000 && xv image.ppm
     Vec operator*(double b) const { return Vec(x*b,y*b,z*b); }
     Vec mult(const Vec &b) const { return Vec(x*b.x,y*b.y,z*b.z); }
     Vec& norm(){ return *this = *this * (1/sqrt(x*x+y*y+z*z)); }
-    double dot(const Vec &b) const { return x*b.x+y*b.y+z*b.z; } // cross:
-    Vec operator%(Vec&b){return Vec(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);}
+    double dot(const Vec &b) const { return x*b.x+y*b.y+z*b.z; } 
+    Vec operator%(Vec&b){return Vec(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);}// cross:
 };
 struct Ray {
-    Vec o, d;
-    Ray(Vec o_, Vec d_) : o(o_), d(d_) {}
+    Vec ori, dir;
+    Ray(Vec o_, Vec d_) : ori(o_), dir(d_) {}
 };
 struct Sphere {
     double rad;       // radius
@@ -42,8 +42,8 @@ struct Sphere {
     Sphere(double rad_, Vec p_, Vec e_, Vec c_, Refl_t refl_):
     rad(rad_), p(p_), e(e_), c(c_), refl(refl_) {}
     double intersect(const Ray &r) const { // returns distance, 0 if nohit
-        Vec op = p-r.o; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
-        double t, eps=1e-4, b=op.dot(r.d), det=b*b-op.dot(op)+rad*rad;
+        Vec op = p-r.ori; // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
+        double t, eps=1e-4, b=op.dot(r.dir), det=b*b-op.dot(op)+rad*rad;
         if (det<0)
             return 0;
         else
@@ -82,9 +82,9 @@ Vec radiance(const Ray &r, int depth, unsigned short *seed){// xi used to store 
     if (!intersect(r, t, id))
         return Vec(); // if miss, return black
     const Sphere &obj = spheres[id];        // the hit object
-    Vec x=r.o+r.d*t;// 射线与球的交点坐标
+    Vec x=r.ori+r.dir*t;// 射线与球的交点坐标
     Vec n=(x-obj.p).norm();// 球心到交点的向量
-    Vec nl=n.dot(r.d)<0?n:n*-1;// 交点在正面还是背面，nl是反射面的法线
+    Vec nl=n.dot(r.dir)<0?n:n*-1;// 交点在正面还是背面，nl是反射面的法线
     Vec f=obj.c;// 球的颜色
     double p = f.x>f.y && f.x>f.z ? f.x : f.y>f.z ? f.y : f.z; // max refl，这儿为什么要选值最大的颜色呀？
     if (++depth>5) {
@@ -104,15 +104,15 @@ Vec radiance(const Ray &r, int depth, unsigned short *seed){// xi used to store 
         Vec d = (u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2)).norm();// 这儿的d为什么要这么计算？应该是一个随机的方向，如果这个方向对视点是不可见的呢？
         return obj.e + f.mult(radiance(Ray(x,d),depth,seed));
     } else if (obj.refl == SPEC)            // Ideal SPECULAR reflection
-        return obj.e + f.mult(radiance(Ray(x,r.d-n*2*n.dot(r.d)),depth,seed));// 球面的反射方向
-    Ray reflRay(x, r.d-n*2*n.dot(r.d));     // Ideal dielectric REFRACTION
+        return obj.e + f.mult(radiance(Ray(x,r.dir-n*2*n.dot(r.dir)),depth,seed));// 球面的反射方向
+    Ray reflRay(x, r.dir-n*2*n.dot(r.dir));     // Ideal dielectric REFRACTION
     bool into = n.dot(nl)>0;                // Ray from outside going in?
     double nc=1, nt=1.5;
     double nnt=into?nc/nt:nt/nc;            // 这儿是折射率吗？
-    double ddn=r.d.dot(nl), cos2t;
+    double ddn=r.dir.dot(nl), cos2t;
     if ((cos2t=1-nnt*nnt*(1-ddn*ddn))<0)    // Total internal reflection 这儿是计算内部的反射,全反射
         return obj.e + f.mult(radiance(reflRay,depth,seed));
-    Vec tdir = (r.d*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm(); // 这个应该是折射方向
+    Vec tdir = (r.dir*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm(); // 这个应该是折射方向
     double a=nt-nc; // 0.5
     double b=nt+nc; // 2.5
     double R0=a*a/(b*b); // 0.25 / 6.25
@@ -189,7 +189,7 @@ void trace(int sample_count, const char* fileDir){
     const float rate = 0.5153f; // 0.5153f; // 这个好像是FOV，是y方向上的角度
     Vec cx=Vec(w*rate/h); // 这个cx是干什么的，为什么要乘以0.5135
     printf("cx %f, %f %f", cx.x, cx.y, cx.z);
-    Vec cy=(cx%cam.d).norm()*rate;// cy的最大值就是rate
+    Vec cy=(cx%cam.dir).norm()*rate;// cy的最大值就是rate
     Vec *c=new Vec[w*h];
     Vec r;
     initScene();
@@ -214,12 +214,12 @@ void trace(int sample_count, const char* fileDir){
                         // 下面是计算光线的方向
                         // 近裁剪面的x是从-0.5到0.5吗？
                         // 近裁剪面到相机的距离是1
-                        Vec d = cx*( ( (sx+.5 + dx)/2 + x)/w - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/h - .5) + cam.d;
+                        Vec d = cx*( ( (sx+.5 + dx)/2 + x)/w - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/h - .5) + cam.dir;
                         d.norm();
                         
 #ifdef USE_XW
                         {
-                            vec3d ori(cam.o.x, cam.o.y, cam.o.z);
+                            vec3d ori(cam.ori.x, cam.ori.y, cam.ori.z);
                             vec3d dir(d.x, d.y, d.z);
                             dir = glm::normalize(dir);
                             
@@ -230,7 +230,7 @@ void trace(int sample_count, const char* fileDir){
 #else
 
                         // 下面的光线是什么意思？相机的位置不应该改变呀～
-                        r = r + radiance(Ray(cam.o,d.norm()),0,seed) * (1.0/samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
+                        r = r + radiance(Ray(cam.ori,d.norm()),0,seed) * (1.0/samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
                         // 下面的140相当于近裁剪面，去掉貌似没什么影响
 //                        r = r + radiance(Ray(cam.o+d*140,d.norm()),0,Xi)*(1./samps);// 这儿也做了一次除法，避免一直计算时，最后的颜色成了白色
 #endif

@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\RayT\cimage.h" />
+    <ClInclude Include="..\RayT\config.h" />
     <ClInclude Include="..\RayT\CSphere.h" />
     <ClInclude Include="..\RayT\object.h" />
     <ClInclude Include="..\RayT\rectangle_obj.h" />
