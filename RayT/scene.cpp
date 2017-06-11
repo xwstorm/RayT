@@ -24,7 +24,7 @@ void Scene::addObject(Object *obj) {
     }
 }
 
-vec3d Scene::radiance(TRay& ray, int depth, unsigned short *Xi) {
+gvec3 Scene::radiance(TRay& ray, int depth, unsigned short *Xi) {
     const float inf = 1e20;
     double minDis = 1e200;
     Object* hitObj = nullptr;
@@ -45,5 +45,5 @@ vec3d Scene::radiance(TRay& ray, int depth, unsigned short *Xi) {
     if (minDis<inf && hitObj != nullptr) {
         return hitObj->radiance(ray, minDis, depth, Xi);
     }
-    return vec3d();
+    return gvec3();
 }

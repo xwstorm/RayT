@@ -19,7 +19,7 @@ public:
     Scene();
     ~Scene();
     void addObject(Object* obj);
-    vec3d radiance(TRay& ray, int depth, unsigned short *Xi);
+    gvec3 radiance(TRay& ray, int depth, unsigned short *Xi);
 protected:
     std::vector<Object*> mObjs;
 };

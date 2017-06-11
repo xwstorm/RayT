@@ -25,12 +25,15 @@
 #define MIN_F 1.0e-3
 
 typedef glm::dvec3 vec3d;
+typedef glm::fvec3 vec3f;
+typedef vec3d      gvec3;
+
 enum Refl_t { DIFF, SPEC, REFR };  // material types, used in radiance()
 const double eps = 1.0e-4;
 struct TRay {
-    vec3d ori;
-    vec3d dir;
-    TRay(vec3d& o, vec3d& d)
+    gvec3 ori;
+    gvec3 dir;
+    TRay(gvec3& o, gvec3& d)
     : ori(o)
     , dir(d)
     {}
@@ -41,10 +44,10 @@ class CImage;
 class Object {
 public:
     Object();
-    Object(const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl);
+    Object(const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl);
     // 求交函数
     virtual bool intersect(const TRay& ray, double& t);
-    virtual vec3d radiance(TRay& ray, double t, int depth, unsigned short* Xi);
+    virtual gvec3 radiance(TRay& ray, double t, int depth, unsigned short* Xi);
     void setScene(Scene* scene);
     void setEntityName(const std::string& name);
     const std::string& getName();
@@ -54,9 +57,9 @@ protected:
     std::string mEntityName;
     
     Refl_t mRefl;
-    vec3d mPos;
-    vec3d mEmission;
-    vec3d mColor;
+    gvec3 mPos;
+    gvec3 mEmission;
+    gvec3 mColor;
 };
 
 #endif /* Object_h */

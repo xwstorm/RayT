@@ -9,14 +9,14 @@
 #include "rectangle_obj.h"
 #include "scene.h"
 
-Rectangle::Rectangle(const vec3d& pos,
-          const vec3d& right,
-          const vec3d& up,
-          const vec3d& dir,
+Rectangle::Rectangle(const gvec3& pos,
+          const gvec3& right,
+          const gvec3& up,
+          const gvec3& dir,
           const unsigned int width,
           const unsigned int height,
-          const vec3d& emission,
-          const vec3d& color,
+          const gvec3& emission,
+          const gvec3& color,
           Refl_t refl)
 : Object(pos, emission, color, refl)
 , mWidth(width)
@@ -59,13 +59,13 @@ bool Rectangle::intersect(const TRay &ray, double &t) {
     return true;
 }
 
-vec3d Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
-    vec3d hitPos    = ray.ori + ray.dir * t;
-    vec3d radN(mMat[2][0], mMat[2][1], mMat[2][2]);
+gvec3 Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
+    gvec3 hitPos    = ray.ori + ray.dir * t;
+    gvec3 radN(mMat[2][0], mMat[2][1], mMat[2][2]);
 //    vec3d radN      = glm::normalize(hitPos - mPos);
-    vec3d normal(mMat[2][0], mMat[2][1], mMat[2][2]);
+    gvec3 normal(mMat[2][0], mMat[2][1], mMat[2][2]);
     // 获取交点处的颜色
-    vec3d color = mColor;
+    gvec3 color = mColor;
     double maxChannel = fmax(fmax(color.x, color.y), color.z);
     if (++depth > 5) {
         if (erand48(Xi) < maxChannel) {
@@ -80,14 +80,14 @@ vec3d Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
             double r1 = 2 * M_PI * erand48(Xi);
             double r2 = erand48(Xi);
             double r2s= glm::sqrt(r2);
-            vec3d w = normal;
-            vec3d u = glm::cross( (fabs(w.x) > 0.1 ? vec3d(0,1,0) : vec3d(1, 0, 0) ), w);
+            gvec3 w = normal;
+            gvec3 u = glm::cross( (fabs(w.x) > 0.1 ? gvec3(0,1,0) : gvec3(1, 0, 0) ), w);
             u = glm::normalize(u);
-            vec3d v = glm::cross(w, u);
-            vec3d newDir = glm::normalize(u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2));
+            gvec3 v = glm::cross(w, u);
+            gvec3 newDir = glm::normalize(u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2));
             ray.ori = hitPos;
             ray.dir = newDir;
-            vec3d result = mEmission + color * mScene->radiance(ray, depth, Xi);
+            gvec3 result = mEmission + color * mScene->radiance(ray, depth, Xi);
             float len = glm::length(result);
             if (len > 0.01) {
                 float len2 = result.length();
@@ -97,7 +97,7 @@ vec3d Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
             break;
         }
         case SPEC:{
-            vec3d reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
+            gvec3 reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
             ray.ori = hitPos;
             ray.dir = reflDir;
             return mEmission + color * mScene->radiance(ray, depth, Xi);
@@ -106,5 +106,5 @@ vec3d Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
         default:
             break;
     }
-    return vec3d();
+    return gvec3();
 }

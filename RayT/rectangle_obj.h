@@ -13,21 +13,21 @@
 #include "object.h"
 class Rectangle : public Object {
 public:
-    Rectangle(const vec3d& pos,
-              const vec3d& right,
-              const vec3d& up,
-              const vec3d& dir,
+    Rectangle(const gvec3& pos,
+              const gvec3& right,
+              const gvec3& up,
+              const gvec3& dir,
               const unsigned int width,
               const unsigned int height,
-              const vec3d& emission,
-              const vec3d& color,
+              const gvec3& emission,
+              const gvec3& color,
               Refl_t refl);
     bool intersect(const TRay& ray, double& t) override;
-    vec3d radiance(TRay& ray, double t, int depth, unsigned short* Xi) override;
+    gvec3 radiance(TRay& ray, double t, int depth, unsigned short* Xi) override;
 protected:
-    vec3d mRight;
-    vec3d mUp;
-    vec3d mDir;
+    gvec3 mRight;
+    gvec3 mUp;
+    gvec3 mDir;
     double mWidth;
     double mHeight;
     

@@ -13,7 +13,7 @@ Object::Object()
 {
 }
 
-Object::Object(const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl)
+Object::Object(const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl)
 : mPos(pos)
 , mEmission(emission)
 , mColor(color)
@@ -28,8 +28,8 @@ void Object::setScene(Scene* scene) {
     mScene = scene;
 }
 
-vec3d Object::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
-    return vec3d();
+gvec3 Object::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
+    return gvec3();
 }
 
 void Object::setEntityName(const std::string& name) {

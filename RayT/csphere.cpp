@@ -8,15 +8,15 @@
 
 #include "csphere.h"
 #include "scene.h"
-#include <math.h>
-CSphere::CSphere(double radius, const vec3d& pos, const vec3d& emission, const vec3d& color, Refl_t refl)
+//#include <math.h>
+CSphere::CSphere(double radius, const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl)
 : Object(pos, emission, color, refl)
 , mRadius(radius) {
     
 }
 
 bool CSphere::intersect(const TRay& ray, double& t) {
-    vec3d op = mPos - ray.ori;
+    gvec3 op = mPos - ray.ori;
     double proj = glm::dot(op, ray.dir);
     double delta = proj * proj - glm::dot(op, op) + mRadius * mRadius;
     if (delta < 0.0) {
@@ -35,12 +35,12 @@ bool CSphere::intersect(const TRay& ray, double& t) {
     return false;
 }
 
-vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
-    vec3d hitPos    = ray.ori + ray.dir * t;
-    vec3d radN      = glm::normalize(hitPos - mPos);
-    vec3d normal    = glm::dot(radN, ray.dir) < 0 ? radN : -radN;
+gvec3 CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
+    gvec3 hitPos    = ray.ori + ray.dir * t;
+    gvec3 radN      = glm::normalize(hitPos - mPos);
+    gvec3 normal    = glm::dot(radN, ray.dir) < 0 ? radN : -radN;
     // 获取交点处的颜色
-    vec3d color = mColor;
+    gvec3 color = mColor;
     double maxChannel = fmax(fmax(color.x, color.y), color.z);
     if (++depth > 5) {
 //        if (erand48(Xi) < maxChannel) {
@@ -57,26 +57,26 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
             double r1 = 2 * M_PI * erand48(Xi);
             double r2 = erand48(Xi);
             double r2s= glm::sqrt(r2);
-            vec3d w = normal;
-            vec3d u = glm::cross( (fabs(w.x) > 0.1 ? vec3d(0,1,0) : vec3d(1, 0, 0) ), w);
+            gvec3 w = normal;
+            gvec3 u = glm::cross( (fabs(w.x) > 0.1 ? gvec3(0,1,0) : gvec3(1, 0, 0) ), w);
             u = glm::normalize(u);
-            vec3d v = glm::cross(w, u);
-            vec3d newDir = glm::normalize(u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2));
+            gvec3 v = glm::cross(w, u);
+            gvec3 newDir = glm::normalize(u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2));
             ray.ori = hitPos;
             ray.dir = newDir;
-            vec3d result = mEmission + color * mScene->radiance(ray, depth, Xi);
+            gvec3 result = mEmission + color * mScene->radiance(ray, depth, Xi);
             return result;
         }
         case SPEC:
         {
-            vec3d reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
+            gvec3 reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
             ray.ori = hitPos;
             ray.dir = reflDir;
             return mEmission + color * mScene->radiance(ray, depth, Xi);
         }
         case REFR:
         {
-            vec3d reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
+            gvec3 reflDir = ray.dir - radN * 2.0 * glm::dot(ray.dir, radN);
             ray.ori = hitPos;
             ray.dir = reflDir;
             bool into = glm::dot(radN, normal) > 0;
@@ -88,7 +88,7 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
             if (cos2t < 0) {
                 return mEmission + color * mScene->radiance(ray, depth, Xi);
             }
-            vec3d tdir = ray.dir * nnt - radN * ( (into?1:-1) * (ddn*nnt + sqrt(cos2t)));
+            gvec3 tdir = ray.dir * nnt - radN * ( (into?1:-1) * (ddn*nnt + sqrt(cos2t)));
             tdir = glm::normalize(tdir);
             double a = nt - nc;
             double b = nt + nc;
@@ -119,5 +119,5 @@ vec3d CSphere::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
         default:
             break;
     }
-    return vec3d();
+    return gvec3();
 }
