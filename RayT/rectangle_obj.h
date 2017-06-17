@@ -9,11 +9,11 @@
 #ifndef rectangle_obj_h
 #define rectangle_obj_h
 
-#include <stdio.h>
+//#include <stdio.h>
 #include "object.h"
-class Rectangle : public Object {
+class CRectangle : public Object {
 public:
-    Rectangle(const gvec3& pos,
+    CRectangle(const gvec3& pos,
               const gvec3& right,
               const gvec3& up,
               const gvec3& dir,

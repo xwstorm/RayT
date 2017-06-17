@@ -19,6 +19,9 @@
     <Filter Include="Source Files\raytrace\windows">
       <UniqueIdentifier>{8b179d17-5381-4b87-9376-2bf1622c0cf5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\raytrace\cuda">
+      <UniqueIdentifier>{64353eb3-cd16-43a8-84c8-dbb80b882113}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -99,5 +102,21 @@
     <Image Include="Win32Project.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\RayT\object.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\RayT\cuda\cuPrintf.cu">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\RayT\cuda\cuPrintf.cuh">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </None>
+    <None Include="..\RayT\object.cuh">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

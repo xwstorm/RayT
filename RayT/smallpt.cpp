@@ -2,19 +2,16 @@
 #include <stdlib.h> // Make : g++ -O3 -fopenmp smallpt.cpp -o smallpt
 #include <stdio.h>  //        Remove "-fopenmp" for g++ version < 4.2
 #include "object.h"
+#include "object.cuh"
 #include "scene.h"
 #include "csphere.h"
 #include "rectangle_obj.h"
+
 #include <math.h>
-#ifdef _WINDOWS
-#include "erand.h"
-#define xprintf(format, ...) \
-        print_log(format, __VA_ARGS__)
-#else
-#include "unistd.h"
-#define xprintf(format, ...) \
-        fprintf(stderr, format, __VA_ARGS__)
-#endif
+
+#include <Windows.h>
+#include <iostream>
+
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
@@ -56,7 +53,7 @@ void initScene() {
     obj->setEntityName("9");
     gScene.addObject(obj);
     
-    obj = new Rectangle(gvec3(27,16.5,47),
+    obj = new CRectangle(gvec3(27,16.5,47),
                         gvec3(1.0, 0.0, 0.0),
                         gvec3(0.0, 1.0, 0.0),
                         gvec3(0.0, 0.0, 1.0),
@@ -68,7 +65,7 @@ void initScene() {
     obj->setEntityName("10");
 //    gScene.addObject(obj);
     
-    obj = new Rectangle(gvec3(27,16.5,47),
+    obj = new CRectangle(gvec3(27,16.5,47),
                         gvec3(0.0, 0.0, -1.0),
                         gvec3(0.0, 1.0, 0.0),
                         gvec3(1.0, 0.0, 0.0),
@@ -81,24 +78,31 @@ void initScene() {
     //gScene.addObject(obj);
 }
 void trace(int sample_count, const char* fileDir){
-    int w=1024, h=768, samps = sample_count/4; // # samples
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    std::cout << "This is a test info" << std::endl;
+
+    outPutDeviceInfo();
+    int width=1024, height=768, samps = sample_count/4; // # samples
     TRay cam(gvec3(50,52,295.6), glm::normalize(gvec3(0, 0,-1))); // cam pos, dir -0.042612
     const double rate = 0.5153f; // 0.5153f; // 这个好像是FOV，是y方向上的角度
-	gvec3 cx= gvec3(w*rate/h, 0, 0); // 这个cx是干什么的，为什么要乘以0.5135
-    printf("cx %f, %f %f", cx.x, cx.y, cx.z);
+	gvec3 cx= gvec3(width*rate/height, 0, 0); // 这个cx是干什么的，为什么要乘以0.5135
+    printf("raytrace cx %f, %f %f", cx.x, cx.y, cx.z);
 	gvec3 cy=glm::normalize(glm::cross(cx,cam.dir))*rate;// cy的最大值就是rate
-	gvec3 *c=new gvec3[w*h];
+	gvec3 *c=new gvec3[width*height];
 	gvec3 r;
 
     initScene();
     //char * dir = getcwd(NULL, 0);
 //#pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
-    for (int y=0; y<h; y++){                       // Loop over image rows
-		xprintf("\rRendering (%d spp) %5.2f%%", samps * 4, 100.*y / (h - 1) );
-        for (unsigned short x=0, seed[3]={0,0,static_cast<unsigned short>(y*y*y)}; x<w; x++)   // Loop cols
+    for (int y=0; y<height; y++){                       // Loop over image rows
+		xprintf("\rRendering (%d spp) %5.2f%%", samps * 4, 100.*y / (height - 1) );
+        for (unsigned short x=0, seed[3]={0,0,static_cast<unsigned short>(y*y*y)}; x<width; x++)   // Loop cols
         {
             // 每个点在2x2的大小上计算
-            for (int sy=0, i=(h-y-1)*w+x; sy<2; sy++)     // 2x2 subpixel rows
+            for (int sy=0, i=(height-y-1)*width+x; sy<2; sy++)     // 2x2 subpixel rows
             {
                 for (int sx=0; sx<2; sx++, r=gvec3()){        // 2x2 subpixel cols
                     // samps是输入的参数再除以4
@@ -112,7 +116,7 @@ void trace(int sample_count, const char* fileDir){
                         // 下面是计算光线的方向
                         // 近裁剪面的x是从-0.5到0.5吗？
                         // 近裁剪面到相机的距离是1
-                        gvec3 d = cx*( ( (sx+.5 + dx)/2 + x)/w - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/h - .5) + cam.dir;
+                        gvec3 d = cx*( ( (sx+.5 + dx)/2 + x)/width - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/height - .5) + cam.dir;
                         d = glm::normalize(d);
 
                         {
@@ -137,8 +141,8 @@ void trace(int sample_count, const char* fileDir){
 	std::string filePath(fileDir);
 	filePath += "/image.ppm";
     FILE *f = fopen(filePath.c_str(), "w");         // Write image to PPM file.
-    fprintf(f, "P3\n%d %d\n%d\n", w, h, 255);
-    for (int i=0; i<w*h; i++) {
+    fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
+    for (int i=0; i<width*height; i++) {
         fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
     }
     fclose(f);

@@ -9,7 +9,7 @@
 #include "rectangle_obj.h"
 #include "scene.h"
 
-Rectangle::Rectangle(const gvec3& pos,
+CRectangle::CRectangle(const gvec3& pos,
           const gvec3& right,
           const gvec3& up,
           const gvec3& dir,
@@ -30,7 +30,7 @@ Rectangle::Rectangle(const gvec3& pos,
     );
 }
 
-bool Rectangle::intersect(const TRay &ray, double &t) {
+bool CRectangle::intersect(const TRay &ray, double &t) {
 //    glm::mat4 matInverse = glm::transpose(mMat);
     glm::mat4 matInverse = glm::inverse(mMat);
     glm::vec4 rayPos(ray.ori.x, ray.ori.y, ray.ori.z, 1.0f);
@@ -59,7 +59,7 @@ bool Rectangle::intersect(const TRay &ray, double &t) {
     return true;
 }
 
-gvec3 Rectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
+gvec3 CRectangle::radiance(TRay& ray, double t, int depth, unsigned short* Xi) {
     gvec3 hitPos    = ray.ori + ray.dir * t;
     gvec3 radN(mMat[2][0], mMat[2][1], mMat[2][2]);
 //    vec3d radN      = glm::normalize(hitPos - mPos);
