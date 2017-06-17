@@ -101,6 +101,10 @@ int outPutDeviceInfo() {
     {
         cudaDeviceProp properties;
         checkCudaErrors(cudaGetDeviceProperties(&properties, i));
+        std::cout << "maxThreadsPerBlock:" << properties.maxThreadsPerBlock << std::endl;
+        std::cout << "maxThreadsDim:" << properties.maxThreadsDim[0] << " " << properties.maxThreadsDim[1] << " " << properties.maxThreadsDim[2] << std::endl;
+        std::cout << "maxGridSize:" << properties.maxGridSize[0] << " " << properties.maxGridSize[1] << " " << properties.maxGridSize[2] << std::endl;
+
         if (properties.major > 3 || (properties.major == 3 && properties.minor >= 5))
         {
             device = i;

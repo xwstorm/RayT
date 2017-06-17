@@ -1,12 +1,8 @@
 #include <math.h>   // smallpt, a Path Tracer by Kevin Beason, 2008
 #include <stdlib.h> // Make : g++ -O3 -fopenmp smallpt.cpp -o smallpt
 #include <stdio.h>  //        Remove "-fopenmp" for g++ version < 4.2
-#include "object.h"
 #include "object.cuh"
 #include "sphere.cuh"
-#include "scene.h"
-#include "csphere.h"
-#include "rectangle_obj.h"
 
 #include <math.h>
 
@@ -22,62 +18,6 @@
 inline double clamp(double x){ return x<0 ? 0 : x>1 ? 1 : x; }
 inline int toInt(double x){ return int(pow(clamp(x),1/2.2)*255+.5); }
 
-
-Scene gScene;
-void initScene() {
-    Object* obj = nullptr;
-    obj = new CSphere(1e5, gvec3( 1e5+1,40.8,81.6), gvec3(),           gvec3(.75,.25,.25),   DIFF);
-    obj->setEntityName("1");
-    gScene.addObject(obj);
-    obj = new CSphere(1e5, gvec3(-1e5+99,40.8,81.6),gvec3(),           gvec3(.25,.25,.75),   DIFF);
-    obj->setEntityName("2");
-    gScene.addObject(obj);
-    obj = new CSphere(1e5, gvec3(50,40.8, 1e5),     gvec3(),           gvec3(.75,.75,.75),   DIFF);
-    obj->setEntityName("3");
-    gScene.addObject(obj);
-//    obj = new CSphere(1e5, vec3d(50,40.8,-1e5+170), vec3d(),           vec3d(),              DIFF);
-//    obj->setEntityName("4");
-//    gScene.addObject(obj);
-    obj = new CSphere(1e5, gvec3(50, 1e5, 81.6),    gvec3(),           gvec3(.75,.75,.75),   DIFF);
-    obj->setEntityName("5");
-    gScene.addObject(obj);
-    obj = new CSphere(1e5, gvec3(50,-1e5+81.6,81.6),gvec3(),           gvec3(.75,.75,.75),   DIFF);
-    obj->setEntityName("6");
-    gScene.addObject(obj);
-    obj = new CSphere(16.5,gvec3(27,16.5,47),       gvec3(),           gvec3(1,1,1)*.999,    SPEC);
-    obj->setEntityName("7");
-    gScene.addObject(obj);
-    obj = new CSphere(16.5,gvec3(73,16.5,78),       gvec3(),           gvec3(1,1,1)*.999,    REFR);
-    obj->setEntityName("8");
-    gScene.addObject(obj);
-    obj = new CSphere(600, gvec3(50,681.6-.27,81.6),gvec3(12,12,12),   gvec3(),              DIFF);
-    obj->setEntityName("9");
-    gScene.addObject(obj);
-    
-    obj = new CRectangle(gvec3(27,16.5,47),
-                        gvec3(1.0, 0.0, 0.0),
-                        gvec3(0.0, 1.0, 0.0),
-                        gvec3(0.0, 0.0, 1.0),
-                        500,
-                        500,
-                        gvec3(),
-                        gvec3(0.75, 0.25, 0.25),
-                        DIFF);
-    obj->setEntityName("10");
-//    gScene.addObject(obj);
-    
-    obj = new CRectangle(gvec3(27,16.5,47),
-                        gvec3(0.0, 0.0, -1.0),
-                        gvec3(0.0, 1.0, 0.0),
-                        gvec3(1.0, 0.0, 0.0),
-                        500,
-                        500,
-                        gvec3(),
-                        gvec3(0.75, 0.25, 0.25),
-                        DIFF);
-    obj->setEntityName("11");
-    //gScene.addObject(obj);
-}
 int initScene(CUSphere*& spheres) {
     spheres = new CUSphere[8] {
     CUSphere(1e5, gvec3(1e5 + 1,40.8,81.6), gvec3(),           gvec3(.75,.25,.25),   REF_DIFF),
@@ -101,15 +41,13 @@ void trace(int sample_count, const char* fileDir){
 
     outPutDeviceInfo();
     int width=1024, height=768, samps = sample_count/4; // # samples
-    TRay cam(gvec3(50,52,295.6), glm::normalize(gvec3(0, 0,-1))); // cam pos, dir -0.042612
+    CURay cam(gvec3(50,52,295.6), glm::normalize(gvec3(0, 0,-1))); // cam pos, dir -0.042612
     const double rate = 0.5153f; // 0.5153f; // 这个好像是FOV，是y方向上的角度
 	gvec3 cx= gvec3(width*rate/height, 0, 0); // 这个cx是干什么的，为什么要乘以0.5135
-    printf("raytrace cx %f, %f %f", cx.x, cx.y, cx.z);
 	gvec3 cy=glm::normalize(glm::cross(cx,cam.dir))*rate;// cy的最大值就是rate
 	gvec3 *c=new gvec3[width*height];
 	gvec3 r;
 
-    initScene();
     CUSphere* spheres = nullptr;
     int sphereSize = initScene(spheres);
     //char * dir = getcwd(NULL, 0);
@@ -133,17 +71,15 @@ void trace(int sample_count, const char* fileDir){
                         // 下面是计算光线的方向
                         // 近裁剪面的x是从-0.5到0.5吗？
                         // 近裁剪面到相机的距离是1
-                        gvec3 d = cx*( ( (sx+.5 + dx)/2 + x)/width - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/height - .5) + cam.dir;
-                        d = glm::normalize(d);
+                        gvec3 dir = cx*( ( (sx+.5 + dx)/2 + x)/width - 0.5) + cy*( ( (sy+.5 + dy)/2 + y)/height - .5) + cam.dir;
+                        dir = glm::normalize(dir);
 
                         {
-                            gvec3 ori(cam.ori.x, cam.ori.y, cam.ori.z);
-                            gvec3 dir(d.x, d.y, d.z);
-                            dir = glm::normalize(dir);
+                            //gvec3 ori(cam.ori.x, cam.ori.y, cam.ori.z);
+                            //gvec3 dir(dir.x, dir.y, dir.z);
+                            //dir = glm::normalize(dir);
                             
-                            TRay ray(ori, dir);
-                            CURay cuRay(ori, dir);
-                            //gvec3 ret = gScene.radiance(ray, 0, seed) * (1.0/samps);
+                            CURay cuRay(cam.ori, dir);
                             gvec3 ret = radiance(spheres, sphereSize, cuRay, 0, seed) * (1.0 / samps);
                             tmpRes += ret;
                         }
