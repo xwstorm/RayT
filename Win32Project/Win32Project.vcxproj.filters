@@ -60,6 +60,9 @@
     <ClInclude Include="..\RayT\config.h">
       <Filter>Source Files\raytrace</Filter>
     </ClInclude>
+    <ClInclude Include="..\RayT\sphere.cuh">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -104,10 +107,13 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="..\RayT\object.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="..\RayT\cuda\cuPrintf.cu">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\RayT\object.cu">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\RayT\sphere.cu">
       <Filter>Source Files\raytrace\cuda</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -116,7 +122,7 @@
       <Filter>Source Files\raytrace\cuda</Filter>
     </None>
     <None Include="..\RayT\object.cuh">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\raytrace\cuda</Filter>
     </None>
   </ItemGroup>
 </Project>

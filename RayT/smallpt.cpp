@@ -3,6 +3,7 @@
 #include <stdio.h>  //        Remove "-fopenmp" for g++ version < 4.2
 #include "object.h"
 #include "object.cuh"
+#include "sphere.cuh"
 #include "scene.h"
 #include "csphere.h"
 #include "rectangle_obj.h"
@@ -77,6 +78,20 @@ void initScene() {
     obj->setEntityName("11");
     //gScene.addObject(obj);
 }
+int initScene(CUSphere*& spheres) {
+    spheres = new CUSphere[8] {
+    CUSphere(1e5, gvec3(1e5 + 1,40.8,81.6), gvec3(),           gvec3(.75,.25,.25),   REF_DIFF),
+    CUSphere(1e5, gvec3(-1e5 + 99,40.8,81.6),gvec3(),           gvec3(.25,.25,.75),   REF_DIFF),
+    CUSphere(1e5, gvec3(50,40.8, 1e5),     gvec3(),           gvec3(.75,.75,.75),   REF_DIFF),
+    //CUSphere(1e5, vec3d(50,40.8,-1e5+170), vec3d(),           vec3d(),              REF_DIFF),
+    CUSphere(1e5, gvec3(50, 1e5, 81.6),    gvec3(),           gvec3(.75,.75,.75),   REF_DIFF),
+    CUSphere(1e5, gvec3(50,-1e5 + 81.6,81.6),gvec3(),           gvec3(.75,.75,.75),   REF_DIFF),
+    CUSphere(16.5,gvec3(27,16.5,47),       gvec3(),           gvec3(1,1,1)*.999,    REF_SPEC),
+    CUSphere(16.5,gvec3(73,16.5,78),       gvec3(),           gvec3(1,1,1)*.999,    REF_REFR),
+    CUSphere(600, gvec3(50,681.6 - .27,81.6),gvec3(12,12,12),   gvec3(),              REF_DIFF)
+    };
+    return 8;
+}
 void trace(int sample_count, const char* fileDir){
     AllocConsole();
     freopen("CONIN$", "r", stdin);
@@ -95,6 +110,8 @@ void trace(int sample_count, const char* fileDir){
 	gvec3 r;
 
     initScene();
+    CUSphere* spheres = nullptr;
+    int sphereSize = initScene(spheres);
     //char * dir = getcwd(NULL, 0);
 //#pragma omp parallel for schedule(dynamic, 1) private(r)       // OpenMP
     for (int y=0; y<height; y++){                       // Loop over image rows
@@ -125,7 +142,9 @@ void trace(int sample_count, const char* fileDir){
                             dir = glm::normalize(dir);
                             
                             TRay ray(ori, dir);
-                            gvec3 ret = gScene.radiance(ray, 0, seed) * (1.0/samps);
+                            CURay cuRay(ori, dir);
+                            //gvec3 ret = gScene.radiance(ray, 0, seed) * (1.0/samps);
+                            gvec3 ret = radiance(spheres, sphereSize, cuRay, 0, seed) * (1.0 / samps);
                             tmpRes += ret;
                         }
                     }

@@ -31,7 +31,7 @@ typedef glm::fvec3 vec3f;
 typedef vec3d      gvec3;
 
 enum RefType { REF_DIFF, REF_SPEC, REF_REFR };  // material types, used in radiance()
-//const double eps = 1.0e-4;
+const double cuEps = 1.0e-4;
 struct CURay {
     gvec3 ori;
     gvec3 dir;

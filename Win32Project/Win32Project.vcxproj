@@ -157,6 +157,7 @@
     <ClInclude Include="..\RayT\object.h" />
     <ClInclude Include="..\RayT\rectangle_obj.h" />
     <ClInclude Include="..\RayT\scene.h" />
+    <ClInclude Include="..\RayT\sphere.cuh" />
     <ClInclude Include="..\RayT\windows\erand.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -200,6 +201,7 @@
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_20,sm_20;compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;</CodeGeneration>
       <InterleaveSourceInPTX Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</InterleaveSourceInPTX>
     </CudaCompile>
+    <CudaCompile Include="..\RayT\sphere.cu" />
     <None Include="..\RayT\object.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
