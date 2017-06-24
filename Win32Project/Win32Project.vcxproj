@@ -100,7 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(NVCUDASAMPLES_INC);../RayT/windows/;$(CUDA_PATH)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(NVCUDASAMPLES_INC);../RayT/;../RayT/cuda;../RayT/windows/;$(CUDA_PATH)/include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -112,6 +112,7 @@
     <CudaCompile>
       <AdditionalCompilerOptions>
       </AdditionalCompilerOptions>
+      <AdditionalOptions>-Xcompiler "/wd 4819" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,11 +154,10 @@
     <ClInclude Include="..\RayT\cimage.h" />
     <ClInclude Include="..\RayT\config.h" />
     <ClInclude Include="..\RayT\CSphere.h" />
-    <None Include="..\RayT\cuda\cuPrintf.cuh" />
+    <ClInclude Include="..\RayT\cuda\object.cuh" />
+    <ClInclude Include="..\RayT\cuda\scene.cuh" />
+    <ClInclude Include="..\RayT\cuda\sphere.cuh" />
     <ClInclude Include="..\RayT\object.h" />
-    <ClInclude Include="..\RayT\rectangle_obj.h" />
-    <ClInclude Include="..\RayT\scene.h" />
-    <ClInclude Include="..\RayT\sphere.cuh" />
     <ClInclude Include="..\RayT\windows\erand.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -168,8 +168,6 @@
     <ClCompile Include="..\RayT\cbject.cpp" />
     <ClCompile Include="..\RayT\cimage.cpp" />
     <ClCompile Include="..\RayT\csphere.cpp" />
-    <ClCompile Include="..\RayT\rectangle_obj.cpp" />
-    <ClCompile Include="..\RayT\scene.cpp" />
     <ClCompile Include="..\RayT\smallpt.cpp" />
     <ClCompile Include="..\RayT\windows\erand.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -188,21 +186,18 @@
     <Image Include="Win32Project.ico" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="..\RayT\cuda\cuPrintf.cu">
+    <CudaCompile Include="..\RayT\cuda\object.cu">
+      <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateRelocatableDeviceCode>
+    </CudaCompile>
+    <CudaCompile Include="..\RayT\cuda\scene.cu">
+      <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateRelocatableDeviceCode>
+    </CudaCompile>
+    <CudaCompile Include="..\RayT\cuda\sphere.cu">
       <GenerateRelocatableDeviceCode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateRelocatableDeviceCode>
       <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_20,sm_20;compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;</CodeGeneration>
-      <InterleaveSourceInPTX Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</InterleaveSourceInPTX>
     </CudaCompile>
-    <CudaCompile Include="..\RayT\object.cu">
-      <FileType>Document</FileType>
-      <GenerateRelocatableDeviceCode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateRelocatableDeviceCode>
-      <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
-      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_20,sm_20;compute_35,sm_35;compute_37,sm_37;compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;</CodeGeneration>
-      <InterleaveSourceInPTX Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</InterleaveSourceInPTX>
-    </CudaCompile>
-    <CudaCompile Include="..\RayT\sphere.cu" />
-    <None Include="..\RayT\object.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

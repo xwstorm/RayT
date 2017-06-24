@@ -7,7 +7,6 @@
 //
 
 #include "rectangle_obj.h"
-#include "scene.h"
 
 CRectangle::CRectangle(const gvec3& pos,
           const gvec3& right,

@@ -48,19 +48,19 @@
     <ClInclude Include="..\RayT\object.h">
       <Filter>Source Files\raytrace</Filter>
     </ClInclude>
-    <ClInclude Include="..\RayT\scene.h">
-      <Filter>Source Files\raytrace</Filter>
-    </ClInclude>
     <ClInclude Include="..\RayT\windows\erand.h">
       <Filter>Source Files\raytrace\windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RayT\rectangle_obj.h">
-      <Filter>Source Files\raytrace</Filter>
     </ClInclude>
     <ClInclude Include="..\RayT\config.h">
       <Filter>Source Files\raytrace</Filter>
     </ClInclude>
-    <ClInclude Include="..\RayT\sphere.cuh">
+    <ClInclude Include="..\RayT\cuda\object.cuh">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RayT\cuda\sphere.cuh">
+      <Filter>Source Files\raytrace\cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RayT\cuda\scene.cuh">
       <Filter>Source Files\raytrace\cuda</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,17 +80,11 @@
     <ClCompile Include="..\RayT\csphere.cpp">
       <Filter>Source Files\raytrace</Filter>
     </ClCompile>
-    <ClCompile Include="..\RayT\scene.cpp">
-      <Filter>Source Files\raytrace</Filter>
-    </ClCompile>
     <ClCompile Include="..\RayT\smallpt.cpp">
       <Filter>Source Files\raytrace</Filter>
     </ClCompile>
     <ClCompile Include="..\RayT\windows\erand.cpp">
       <Filter>Source Files\raytrace\windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RayT\rectangle_obj.cpp">
-      <Filter>Source Files\raytrace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,22 +101,14 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="..\RayT\cuda\cuPrintf.cu">
+    <CudaCompile Include="..\RayT\cuda\object.cu">
       <Filter>Source Files\raytrace\cuda</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\RayT\object.cu">
+    <CudaCompile Include="..\RayT\cuda\sphere.cu">
       <Filter>Source Files\raytrace\cuda</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\RayT\sphere.cu">
+    <CudaCompile Include="..\RayT\cuda\scene.cu">
       <Filter>Source Files\raytrace\cuda</Filter>
     </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\RayT\cuda\cuPrintf.cuh">
-      <Filter>Source Files\raytrace\cuda</Filter>
-    </None>
-    <None Include="..\RayT\object.cuh">
-      <Filter>Source Files\raytrace\cuda</Filter>
-    </None>
   </ItemGroup>
 </Project>

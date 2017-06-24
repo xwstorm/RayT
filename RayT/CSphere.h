@@ -12,14 +12,40 @@
 #include <stdio.h>
 #include "object.h"
 #include "glm/glm.hpp"
-class CSphere : public Object {
+
+class CSphere : public Object
+{
 public:
-    CSphere();
-    CSphere(double radius, const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl);
-    
-    bool intersect(const TRay& ray, double& t) override;
-    gvec3 radiance(TRay& ray, double t, int depth, unsigned short* Xi) override;
-protected:
     double mRadius;
+    CSphere() {};
+    CSphere(double radius, const gvec3& pos, const gvec3& emission, const gvec3& color, RefType refl)
+        : mRadius(radius)
+    {
+        mPos = pos;
+        mEmission = emission;
+        mColor = color;
+        mRefl = refl;
+
+    }
+    bool intersect(const TRay& ray, double& t) {
+        gvec3 op = mPos - ray.ori;
+        double proj = glm::dot(op, ray.dir);
+        double delta = proj * proj - glm::dot(op, op) + mRadius * mRadius;
+        if (delta < 0.0) {
+            return false;
+        }
+        delta = glm::sqrt(delta);
+        t = proj - delta;
+        if (t > eps) {
+            return true;
+        }
+        t = proj + delta;
+        if (t > eps) {
+            return true;
+        }
+        t = 0.0;
+        return false;
+    }
 };
+gvec3 radiance_host(CSphere* sphereArr, int size, TRay& ray, int depth, unsigned short* Xi);
 #endif /* CSphere_h */

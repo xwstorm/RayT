@@ -5,9 +5,7 @@
 //  Created by xiewei on 17/3/2.
 //  Copyright © 2017年 xiewei. All rights reserved.
 //
-
-#ifndef Object_h
-#define Object_h
+#pragma once
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846  
@@ -21,6 +19,7 @@
 #include <stdio.h>
 #include "glm/glm.hpp"
 #include <string>
+#include "config.h"
 
 #define MIN_F 1.0e-3
 
@@ -39,27 +38,33 @@ struct TRay {
     {}
 };
 
-class Scene;
-class CImage;
-class Object {
-public:
-    Object();
-    Object(const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl);
-    // 求交函数
-    virtual bool intersect(const TRay& ray, double& t);
-    virtual gvec3 radiance(TRay& ray, double t, int depth, unsigned short* Xi);
-    void setScene(Scene* scene);
-    void setEntityName(const std::string& name);
-    const std::string& getName();
-protected:
-    CImage* mImage;
-    Scene*  mScene;
-    std::string mEntityName;
-    
-    Refl_t mRefl;
+//class Scene;
+//class CImage;
+//class Object {
+//public:
+//    Object();
+//    Object(const gvec3& pos, const gvec3& emission, const gvec3& color, Refl_t refl);
+//    // 求交函数
+//    virtual bool intersect(const TRay& ray, double& t);
+//    virtual gvec3 radiance(TRay& ray, double t, int depth, unsigned short* Xi);
+//    void setScene(Scene* scene);
+//    void setEntityName(const std::string& name);
+//    const std::string& getName();
+//protected:
+//    CImage* mImage;
+//    Scene*  mScene;
+//    std::string mEntityName;
+//    
+//    Refl_t mRefl;
+//    gvec3 mPos;
+//    gvec3 mEmission;
+//    gvec3 mColor;
+//};
+
+struct Object {
+    RefType mRefl;
     gvec3 mPos;
     gvec3 mEmission;
     gvec3 mColor;
 };
 
-#endif /* Object_h */

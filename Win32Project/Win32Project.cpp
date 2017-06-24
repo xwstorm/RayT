@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "Win32Project.h"
-extern void trace(int sampleCount, const char* dir);
+extern void trace(int sampleCount, const char* dir, bool isDevice);
 
 #define MAX_LOADSTRING 100
 
@@ -139,7 +139,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 DestroyWindow(hWnd);
                 break;
 			case ID_FILE_SAVE:
-				trace(30, "./");
+				trace(30, "./", true);
 				break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
