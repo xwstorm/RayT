@@ -112,10 +112,13 @@ void trace_host(int sample_count, const char* fileDir){
 
 
 void trace_device(int sample_count, const char* fileDir) {
-    openConsole();
+    printf("init device\n");
+    initDevice();
+    //testKernel();
+    //return;
+    //openConsole();
 
-    outPutDeviceInfo();
-    int width = 1024, height = 768, samps = sample_count / 4; // # samples
+    int width = OUT_WIDTH, height = OUT_HEIGHT, samps = sample_count / 4; // # samples
     CURay cam(gvec3(50, 52, 295.6), glm::normalize(gvec3(0, 0, -1))); // cam pos, dir -0.042612
     const double rate = 0.5153f; // 0.5153f; // 这个好像是FOV，是y方向上的角度
     gvec3 cx = gvec3(width*rate / height, 0, 0); // 这个cx是干什么的，为什么要乘以0.5135
@@ -124,9 +127,11 @@ void trace_device(int sample_count, const char* fileDir) {
     gvec3 r;
 
     CUSphere* spheres = nullptr;
-    gvec3* colorMap;
+    gvec3* colorMap = nullptr;
+    //int sphereSize = 8;
+    printf("begin init scene\n");
     int sphereSize = initDeviceScene(width, height, spheres, hostMap, colorMap);
-
+    printf("begin kernel\n");
     startKernel(spheres, sphereSize, cam, 0, sample_count, width, height, cx, cy, nullptr, sample_count, hostMap, colorMap);
 
     writeBufferToDisk(fileDir, width, height, hostMap);

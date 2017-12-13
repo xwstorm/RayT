@@ -8,7 +8,7 @@
 #pragma once
 #ifndef __TRYTRACE_CONFIG__
 #define __TRYTRACE_CONFIG__
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(_CONSOLE)
 #include "erand.h"
 #define xprintf(format, ...) \
         print_log(format, __VA_ARGS__)
